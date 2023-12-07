@@ -36,9 +36,6 @@ def get_captcha():
     }
     
     response = requests.request("GET", url, headers=headers, data=payload)
-
-    #write_audio(response.json()['audio'])
-
     return response.json(), response.headers['x-gouv-csrf']
 
 def get_interval():
