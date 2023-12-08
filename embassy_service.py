@@ -21,11 +21,15 @@ class EmbassyService:
         return list(possible_days-set(exclude_days))
     
     def get_interval(self):
+        body =  self.__request_get_interval().json()
+        return body['start'], body['end']
+    
+    def __request_get_interval(self):
         headers = {
             'x-gouv-app-id': self.gouv_app_id
         }
         response = requests.request("GET", GET_INTERVAL_PATH, headers=headers)
-        return response.json()
+        return response
     
     def __generate_dates_interval(self, start, end):
         dates = set()
@@ -56,7 +60,7 @@ class EmbassyService:
         print("No se puedo recuperar los días excluidos, renovando sesion...")
         self.session_id = self.__renovate_session()
 
-        new_response = self.request_exclude_days(start_date, end_date)
+        new_response = self.__request_exclude_days(self, start_date, end_date)
         if new_response.status_code != 200:
             raise Exception("Hubo un problema inesperado: ", new_response.status_code, new_response.text)
         return new_response.json()

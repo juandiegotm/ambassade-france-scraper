@@ -15,8 +15,7 @@ def main():
 
     # Even the server give us a start_date, 
     # we are interested in use the date defined by the user. 
-    interval_limits = embassy_service.get_interval()
-    end_date = interval_limits['end']
+    _, end_date = embassy_service.get_interval()
     
     print(f"Se buscarán citas en el periodo {START_DATE} y {end_date}")
 
