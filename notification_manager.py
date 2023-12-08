@@ -7,10 +7,10 @@ class NotificationManager:
         self.chat_id = chat_id
 
     def notify_available_days(self, dates):
-        response = self.send_telegram_message("Los días disponibles son: " + str(dates))
+        response = self.__send_telegram_message("Los días disponibles son: " + str(dates))
         return True if response.status_code == 200 else False
 
-    def send_telegram_message(self, message: str):
+    def __send_telegram_message(self, message: str):
         headers = {'Content-Type': 'application/json',
                 'Proxy-Authorization': 'Basic base64'}
         data_dict = {'chat_id': self.chat_id,
