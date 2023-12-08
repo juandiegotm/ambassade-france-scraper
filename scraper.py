@@ -5,8 +5,8 @@ from embassy_service import EmbassyService
 from notification_manager import NotificationManager
 
 START_DATE = '2024-01-22'
-BOT_TOKEN = '***REMOVED***'
-CHAT_ID = '***REMOVED***'
+BOT_TOKEN = ''
+CHAT_ID = ''
 INTERVAL_IN_S = 120
 
 def main():
