@@ -2,6 +2,7 @@ import json
 import requests
 import base64
 import time
+import logging
 from datetime import date, timedelta
 
 from helpers import transform_date_format
@@ -9,7 +10,7 @@ from captcha_solver import solve_audio_captcha
 
 BASE_PATH = 'https://api.consulat.gouv.fr/api/team/6230a5f8eb8eddc6026c2f86/reservations/exclude-days'
 GET_INTERVAL_PATH = 'https://api.consulat.gouv.fr/api/team/6230a5f8eb8eddc6026c2f86/reservations/get-interval?serviceId=6233529437d20079e6271bd9'
-
+logger = logging.getLogger()
 class EmbassyService:
     def __init__(self) -> None:
         self.gouv_app_id = self.__get_gouv_app_id()
@@ -24,13 +25,6 @@ class EmbassyService:
         body =  self.__request_get_interval().json()
         return body['start'], body['end']
     
-    def __request_get_interval(self):
-        headers = {
-            'x-gouv-app-id': self.gouv_app_id
-        }
-        response = requests.request("GET", GET_INTERVAL_PATH, headers=headers)
-        return response
-    
     def __generate_dates_interval(self, start, end):
         dates = set()
         delta = timedelta(days=1)
@@ -44,23 +38,19 @@ class EmbassyService:
 
         return dates
 
-    def __handle_exclude_days(self, response):
-        if response.status_code == 200 and len(response.text) == 0:
-            raise Exception('Hubo una excepción extraña.')
-        elif response.status_code == 429:
-            raise Exception("El servidor detectó muchas peticiones en poco tiempo. Pausando 5 minutos")
-
     def __get_exclude_days(self, start_date, end_date):
         response = self.__request_exclude_days(start_date, end_date)
-        self.__handle_exclude_days(response)
+
+        if response.status_code == 429:
+            raise Exception("El servidor detectó muchas peticiones en poco tiempo. Pausando 5 minutos")
 
         if response.status_code != 404:
             return response.json()
         
-        print("No se puedo recuperar los días excluidos, renovando sesion...")
+        logger.info("Experid session.")
         self.session_id = self.__renovate_session()
 
-        new_response = self.__request_exclude_days(self, start_date, end_date)
+        new_response = self.__request_exclude_days(start_date, end_date)
         if new_response.status_code != 200:
             raise Exception("Hubo un problema inesperado: ", new_response.status_code, new_response.text)
         return new_response.json()
@@ -75,7 +65,7 @@ class EmbassyService:
         if not solution or len(solution) != 4:
             return None
         
-        response_send_captcha = self.__send_captch(solution, csrf_token)
+        response_send_captcha = self.__send_captcha(solution, csrf_token)
         try:
             body = response_send_captcha.json()
             return body['_id']
@@ -83,17 +73,17 @@ class EmbassyService:
             return None
         
     def __renovate_session(self):
+        logger.info("Getting a new session. Solving captcha (10 attemps)")
         session_id = None
         i = 0
         while i < 10:
-            print(f"Intento {i}")
             session_id = self.__get_session_id()
             
             if session_id:
-                print("Catpcha solucionado con exito")
+                logger.info("Attempt %d: Succeed", i)
                 break
             else:
-                print("Intento fallido, volviendo a internar...")
+                logger.info("Attempt %d: Failed", i)
                 time.sleep(5)
             i+=1
         
@@ -109,15 +99,25 @@ class EmbassyService:
             Exception("El token no existe o es demasiado viejo. Renuevelo y vuelva a internarlo")
 
         return True if response_reservate_sesion.status_code == 200 else False
+        
+    def __get_gouv_app_id(self):
+        return self.__request_hand_shake().headers['x-gouv-app-id']
 
+    def __get_cannonical_header(self):
+        return {
+            'x-gouv-app-id': self.gouv_app_id
+        }
+    
+    def __request_get_interval(self):
+        headers = self.__get_cannonical_header()
+        response = requests.request("GET", GET_INTERVAL_PATH, headers=headers)
+        return response
+    
     def __request_hand_shake(self):
         url = "https://api.consulat.gouv.fr/api/handshake"
         return requests.request("HEAD", url)
     
-    def __get_gouv_app_id(self):
-        return self.__request_hand_shake().headers['x-gouv-app-id']
-
-    def __send_captch(self, captcha, csrf_token):
+    def __send_captcha(self, captcha, csrf_token):
         url = "https://api.consulat.gouv.fr/api/team/6230a5f8eb8eddc6026c2f86/reservations-session"
 
         payload = json.dumps({
@@ -125,7 +125,7 @@ class EmbassyService:
             "captcha": "troov_c_" + captcha
         })
         headers = {
-            'x-gouv-app-id': self.gouv_app_id ,
+            **self.__get_cannonical_header(),
             'Content-Type': 'application/json',
             'x-gouv-ck': csrf_token,
             'x-csrf-token': csrf_token
@@ -135,11 +135,7 @@ class EmbassyService:
 
     def __get_captcha(self):
         url = "https://api.consulat.gouv.fr/api/captcha?locale=es"
-        payload = {}
-        headers = {
-            'x-gouv-app-id': self.gouv_app_id 
-        }
-        return requests.request("GET", url, headers=headers, data=payload)
+        return requests.request("GET", url, headers=self.__get_cannonical_header())
 
     def __request_exclude_days(self, start_date, end_date):
         request_body = {
@@ -152,8 +148,8 @@ class EmbassyService:
         }
 
         headers = {
+            **self.__get_cannonical_header(),
             'Content-Type': 'application/json',
-            'x-gouv-app-id': self.gouv_app_id 
         }
         return requests.post(BASE_PATH, data=json.dumps(request_body), headers=headers)
 
@@ -163,9 +159,4 @@ class EmbassyService:
         payload = {
             'sessionId': self.session_id
         }
-        
-        headers = {
-            'x-gouv-app-id': self.gouv_app_id 
-        }
-
-        return requests.request("GET", url, headers=headers, data=payload)
+        return requests.request("GET", url, headers=self.__get_cannonical_header(), data=payload)
