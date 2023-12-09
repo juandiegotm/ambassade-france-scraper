@@ -11,7 +11,6 @@ It's an notifier of the Ambsassade de France (consulat.gouv.fr/es/ambassade-de-f
 - AWS Credentials configured 
 - Serverless framework installed (to deploy the image)
 
-
 ## Acknowledgement
 - Inspired in the work of @uxDaniel and @dvalbuena1 in the USA Visa Rescheduler. 
 - [Original Repo](https://github.com/uxDaniel/visa_rescheduler) and [Fork](https://github.com/uxDaniel/visa_rescheduler)
