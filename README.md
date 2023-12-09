@@ -1,5 +1,5 @@
 
-# france_embassy_notifier - AWS and Telegram
+# france-embassy-notifier
 It's an notifier of the Ambsassade de France (consulat.gouv.fr/es/ambassade-de-france-a-bogota/appointment) for available appointment to get a Visa for students, assistants de langue and VVT (Visa Vacances Travail). 
 
 ## Prerequisites 
