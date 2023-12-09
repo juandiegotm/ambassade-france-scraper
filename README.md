@@ -1,6 +1,6 @@
 
-# france_embassy_notificator - AWS and Telegram
-It's an scrapper of the Ambsassade de France (consulat.gouv.fr/es/ambassade-de-france-a-bogota/appointment) which notifies if there is and available appointment to get a Visa for students, assistants de langue and VVT (Visa Vacances Travail). 
+# france_embassy_notifier - AWS and Telegram
+It's an notifier of the Ambsassade de France (consulat.gouv.fr/es/ambassade-de-france-a-bogota/appointment) for available appointment to get a Visa for students, assistants de langue and VVT (Visa Vacances Travail). 
 
 ## Prerequisites 
 - API Token BOT from telegram for noitifications (optional)
