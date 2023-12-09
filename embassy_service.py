@@ -1,27 +1,68 @@
 import json
+from enum import Enum
 import requests
 import base64
 import time
 import logging
 from datetime import date, timedelta
+from helpers import Time
 
 from helpers import transform_date_format
 from captcha_solver import solve_audio_captcha
+from notification_manager import NotificationManager
 
 BASE_PATH = 'https://api.consulat.gouv.fr/api/team/6230a5f8eb8eddc6026c2f86/reservations/exclude-days'
 GET_INTERVAL_PATH = 'https://api.consulat.gouv.fr/api/team/6230a5f8eb8eddc6026c2f86/reservations/get-interval?serviceId=6233529437d20079e6271bd9'
+BOT_TOKEN = ''
+CHAT_ID = ''
+
 logger = logging.getLogger()
+notificator = NotificationManager(BOT_TOKEN, CHAT_ID)
+
+START_DATE = '2024-01-22'
+
+class Result(Enum):
+    SUCCESS = 1
+    RETRY = 2
+    COOLDOWN = 3
+    EXCEPTION = 4
+
 class EmbassyService:
     def __init__(self) -> None:
+        logger.info("Process started")
+        logger.info("Delay between queries: %ds", Time.RETRY_TIME)
+        # Must be first, always.
         self.gouv_app_id = self.__get_gouv_app_id()
+
+        # Even the server give us a start_date, we are interested in use the date defined by the user.
+        self.start_date = START_DATE
+        _, self.end_date = self.__get_interval()
+        logger.info("Looking for dates in the period %s y %s", self.start_date, self.end_date)
+
         self.session_id = self.__renovate_session()
 
-    def avaliable_dates(self, start_date, end_date):
+    def main(self) -> Result: 
+        dates = self.__avaliable_dates(START_DATE, self.end_date)
+        if len(dates) == 0:
+            logger.info(f"No available dates")
+            return Result.RETRY
+
+        else:
+            logger.info("Dates founded!")
+            dates.sort()
+            sended = notificator.notify_available_days(dates)
+            if sended:
+                logger.info("Notification send to telegram")
+            else:
+                logger.error("Cannot send notification to telegram. Check your secrets!")
+            return Result.SUCCESS 
+
+    def __avaliable_dates(self, start_date, end_date):
         exclude_days = self.__get_exclude_days(start_date, end_date)
         possible_days = self.__generate_dates_interval(start_date, end_date)
         return list(possible_days-set(exclude_days))
     
-    def get_interval(self):
+    def __get_interval(self):
         body =  self.__request_get_interval().json()
         return body['start'], body['end']
     
