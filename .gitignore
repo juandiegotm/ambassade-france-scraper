@@ -161,3 +161,6 @@ cython_debug/
 
 # MacOS Folder and files
 .DS_Store
+
+# Other stuff
+ffmpeg-6.1-amd64-static/

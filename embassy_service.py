@@ -13,13 +13,13 @@ from notification_manager import NotificationManager
 
 BASE_PATH = 'https://api.consulat.gouv.fr/api/team/6230a5f8eb8eddc6026c2f86/reservations/exclude-days'
 GET_INTERVAL_PATH = 'https://api.consulat.gouv.fr/api/team/6230a5f8eb8eddc6026c2f86/reservations/get-interval?serviceId=6233529437d20079e6271bd9'
-BOT_TOKEN = ''
-CHAT_ID = ''
-
-logger = logging.getLogger()
-notificator = NotificationManager(BOT_TOKEN, CHAT_ID)
+BOT_TOKEN = '***REMOVED***'
+CHAT_ID = '***REMOVED***'
 
 START_DATE = '2024-01-22'
+
+logger = logging.getLogger("Embassy_Logger")
+notificator = NotificationManager(BOT_TOKEN, CHAT_ID)
 
 class Result(Enum):
     SUCCESS = 1
@@ -39,6 +39,7 @@ class EmbassyService:
         _, self.end_date = self.__get_interval()
         logger.info("Looking for dates in the period %s y %s", self.start_date, self.end_date)
 
+        # TODO: session id has a duration of 30 minutes, so handle it to no request a lot from the server.
         self.session_id = self.__renovate_session()
 
     def main(self) -> Result: 
@@ -85,7 +86,7 @@ class EmbassyService:
         if response.status_code == 429:
             raise Exception("El servidor detectó muchas peticiones en poco tiempo. Pausando 5 minutos")
 
-        if response.status_code != 404:
+        if response.status_code == 200 and len(response.text) > 0:
             return response.json()
         
         logger.info("Experid session.")

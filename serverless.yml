@@ -1,0 +1,58 @@
+org: juandiegotm
+app: france-embassy-notifier
+service: france-embassy-notifier
+
+provider:
+  name: aws
+  logRetentionInDays: 5
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action: 'iam:PassRole'
+          Resource:
+            - 'Fn::Join':
+                - ''
+                - - 'arn:aws:iam::'
+                  - Ref: AWS::AccountId
+                  - ':role/'
+                  - ${self:service}
+                  - '-'
+                  - ${self:provider.stage}
+                  - '-'
+                  - Ref: AWS::Region
+                  - '-lambdaRole'
+        - Effect: Allow
+          Action:
+            - 'scheduler:GetSchedule'
+            - 'scheduler:UpdateSchedule'
+          Resource:
+            - 'Fn::Join':
+              - ''
+              - - 'arn:aws:scheduler:'
+                - Ref: AWS::Region
+                - ':'
+                - Ref: AWS::AccountId
+                - ':schedule/default/'
+                - ${self:service}
+                - '*'
+
+
+  stage: ${opt:stage, 'prod'}
+  region: ${env:AWS_REGION, 'us-east-1'}
+  ecr:
+    images:
+      img:
+        path: ./
+        platform: linux/amd64
+
+functions:
+  main:
+    timeout: 60
+    memorySize: 1024
+    image:
+      name: img
+    events:
+      - schedule:
+          method: scheduler
+          rate: rate(${file(./json_var.json):retry_value, '10'} minutes)
