@@ -13,8 +13,8 @@ from notification_manager import NotificationManager
 
 BASE_PATH = 'https://api.consulat.gouv.fr/api/team/6230a5f8eb8eddc6026c2f86/reservations/exclude-days'
 GET_INTERVAL_PATH = 'https://api.consulat.gouv.fr/api/team/6230a5f8eb8eddc6026c2f86/reservations/get-interval?serviceId=6233529437d20079e6271bd9'
-BOT_TOKEN = '***REMOVED***'
-CHAT_ID = '***REMOVED***'
+BOT_TOKEN = ''
+CHAT_ID = ''
 
 START_DATE = '2024-01-22'
 
