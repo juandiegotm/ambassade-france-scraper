@@ -29,6 +29,7 @@ class Result(Enum):
 
 class EmbassyService:
     def __init__(self) -> None:
+        logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
         logger.info("Process started")
         logger.info("Delay between queries: %ds", Time.RETRY_TIME)
         # Must be first, always.

@@ -14,8 +14,7 @@ FFMPEG_STATIC_URL = "https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-st
 OUTPUT_FOLDER = "./ffmpeg"
 
 def as_loop():
-    from embassy_service import EmbassyService, Result
-    logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+    from embassy_service import EmbassyService
 
     handler = EmbassyService()
     while True:        
@@ -27,7 +26,8 @@ def as_loop():
         time.sleep(Time.RETRY_TIME)
 
 def as_lambda_function():
-    if not os.path.exists("./ffmpeg"):
+    logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+    if not os.path.exists(OUTPUT_FOLDER):
         get_ffmpeg_folder()
 
     data = {"retry_value": Time.RETRY_TIME // 60}
@@ -56,6 +56,3 @@ def get_ffmpeg_folder():
     
     if not completed:
         raise Exception("Can't download ffmpeg file. Try again.")
-        
-
-get_ffmpeg_folder()
