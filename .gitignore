@@ -163,4 +163,5 @@ cython_debug/
 .DS_Store
 
 # Other stuff
-ffmpeg-6.1-amd64-static/
+ffmpeg/
+.serverless/

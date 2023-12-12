@@ -1,6 +1,6 @@
 FROM public.ecr.aws/lambda/python:3.11
 
-COPY ffmpeg-6.1-amd64-static ${LAMBDA_TASK_ROOT}/ffmpeg
+COPY ffmpeg ${LAMBDA_TASK_ROOT}/ffmpeg
 RUN chmod 777 -R ${LAMBDA_TASK_ROOT}/ffmpeg
 ENV PATH="/var/task/ffmpeg:${PATH}"
 
