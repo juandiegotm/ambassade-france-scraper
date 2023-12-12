@@ -11,10 +11,19 @@ It's an notifier of the Ambsassade de France (consulat.gouv.fr/es/ambassade-de-f
 - AWS Credentials configured 
 - Serverless framework installed (to deploy the image)
 
-## Docs
-- [AWS Python Docker Image](https://docs.aws.amazon.com/lambda/latest/dg/python-image.html)
+## Executing the script
+
+### Local
+Install the required python packages: pip install -r requirements.txt
+Simply run python -c "import setup; setup.as_loop()"
+
+### AWS
+Do not need to install requirements.txt. I think you must install just 'requests' module with pip install 'requests'
+Later, run python -c "import setup; setup.as_lambda_function()"
+In case you want to stop or delete the function run sls delete
+That's it!
 
 ## Acknowledgement
 - Inspired in the work of @uxDaniel and @dvalbuena1 in the USA Visa Rescheduler. 
-- [Original Repo](https://github.com/uxDaniel/visa_rescheduler) and [Fork](https://github.com/uxDaniel/visa_rescheduler)
+- [Original Repo](https://github.com/uxDaniel/visa_rescheduler) and [Fork](https://github.com/dvalbuena1/visa_rescheduler_aws)
 
