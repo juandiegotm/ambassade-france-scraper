@@ -12,7 +12,7 @@ from captcha_solver import solve_audio_captcha
 from notification_manager import NotificationManager
 
 BASE_PATH = 'https://api.consulat.gouv.fr/api/team/6230a5f8eb8eddc6026c2f86/reservations/exclude-days'
-GET_INTERVAL_PATH = 'https://api.consulat.gouv.fr/api/team/6230a5f8eb8eddc6026c2f86/reservations/get-interval?serviceId=6233529437d20079e6271bd9'
+GET_INTERVAL_PATH = 'https://api.consulat.gouv.fr/api/team/6230a5f8eb8eddc6026c2f86/reservations/get-interval?serviceId=623a31e505be16413d5f71ce'
 BOT_TOKEN = ''
 CHAT_ID = ''
 
