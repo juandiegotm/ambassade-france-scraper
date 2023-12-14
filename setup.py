@@ -10,10 +10,13 @@ import io
 
 from helpers import Time
 
+logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 FFMPEG_STATIC_URL = "https://johnvansickle.com/ffmpeg/builds/ffmpeg-git-amd64-static.tar.xz"
 OUTPUT_FOLDER = "./ffmpeg"
 
 def as_loop():
+    logging.info("Process started")
+    logging.info("Delay between queries: %ds", Time.RETRY_TIME)
     from embassy_service import EmbassyService
 
     handler = EmbassyService()
@@ -26,7 +29,6 @@ def as_loop():
         time.sleep(Time.RETRY_TIME)
 
 def as_lambda_function():
-    logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
     if not os.path.exists(OUTPUT_FOLDER):
         get_ffmpeg_folder()
 
