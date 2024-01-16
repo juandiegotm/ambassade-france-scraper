@@ -14,7 +14,7 @@ def convertir_audio_a_texto(audio_data):
         audio_rec = reconocedor.record(fuente_audio)
 
         try:
-            texto_transcripcion = reconocedor.recognize_google(audio_rec, language="es-ES")
+            texto_transcripcion = reconocedor.recognize_google(audio_rec, language="en-US")
             return clean_text(texto_transcripcion)
         except sr.UnknownValueError as err:
             print(err)

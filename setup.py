@@ -5,6 +5,7 @@ import os
 import subprocess
 import requests
 import tarfile
+import random
 
 import io
 
@@ -16,17 +17,20 @@ OUTPUT_FOLDER = "./ffmpeg"
 
 def as_loop():
     logging.info("Process started")
-    logging.info("Delay between queries: %ds", Time.RETRY_TIME)
+    logging.info("Delay between queries around %ds (+- 10)", Time.RETRY_TIME)
     from embassy_service import EmbassyService
 
     handler = EmbassyService()
     while True:        
         try:
-            handler.main()
+            result = handler.main()
+            # next_launch = random.randint(Time.RETRY_TIME - 10, Time.RETRY_TIME + 10)
+            next_launch = Time.RETRY_TIME
+            logging.info(f"Next launch in: {next_launch}s")
+            time.sleep(next_launch)
         except Exception as e:
             logging.error("Exception occurred", exc_info=True)
-
-        time.sleep(Time.RETRY_TIME)
+            time.sleep(Time.EXCEPTION_TIME)
 
 def as_lambda_function():
     if not os.path.exists(OUTPUT_FOLDER):
